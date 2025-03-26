@@ -16,17 +16,17 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
   server: Server;
 
   //useful for one-to-one messaging
-  private clientSocketMap = new Map<string, Socket>();
+  private userSocketMap = new Map<string, Socket>();
 
   handleConnection(client: Socket) {
     const clientId = client.id;
-    this.clientSocketMap.set(clientId, client);
+    this.userSocketMap.set(clientId, client);
     console.log(`Client connected : ${clientId}`);
   }
 
   handleDisconnect(socket: Socket) {
     const clientId = socket.id;
-    this.clientSocketMap.delete(clientId);
+    this.userSocketMap.delete(clientId);
     console.log(`Client disconnected ${clientId}`);
   }
 
@@ -48,12 +48,35 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
       message: string
     } //data
   ) {
-    const receiverSocket = this.clientSocketMap.get(data.receiverId);
+    const receiverSocket = this.userSocketMap.get(data.receiverId);
 
-    if(receiverSocket)
-    {
-      //send the message to receiver with receiverId   
+    if (receiverSocket) {
+      //send the message to receiver with receiverId
       receiverSocket.emit('private-message', `You received message: ${data.message}`);
     }
+  }
+
+  @SubscribeMessage('create-presentation')
+  handleCreatePresentation(
+    @MessageBody() data: {
+      clientId: string,
+      presentation: string
+    }
+  ) {
+    const clientSocket = this.userSocketMap.get(data.clientId);
+    clientSocket.join(data.presentation);
+
+    this.server.to(data.presentation).emit('create-presentation', `Room for presentation ${data.presentation} created successfully`);
+  }
+
+  @SubscribeMessage('join-presentation')
+  handleJoinPresentation(
+    @MessageBody() data: {
+      clientId: string,
+      room: string
+    }
+  ) {
+    const clientSocket = this.userSocketMap.get(data.clientId);
+    clientSocket.join(data.room);
   }
 }
