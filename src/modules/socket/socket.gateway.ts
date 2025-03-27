@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import { MessageBody, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
@@ -18,16 +19,19 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
   //useful for one-to-one messaging
   private userSocketMap = new Map<string, Socket>();
 
+  //logger
+  private logger = new Logger(SocketGateway.name);
+
   handleConnection(client: Socket) {
     const clientId = client.id;
     this.userSocketMap.set(clientId, client);
-    console.log(`Client connected : ${clientId}`);
+    this.logger.log(`Client connected : ${clientId}`);
   }
 
   handleDisconnect(socket: Socket) {
     const clientId = socket.id;
     this.userSocketMap.delete(clientId);
-    console.log(`Client disconnected ${clientId}`);
+    this.logger.log(`Client disconnected : ${clientId}`);
   }
 
   @SubscribeMessage('message')
