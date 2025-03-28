@@ -60,8 +60,8 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  @SubscribeMessage('create-presentation')
-  handleCreatePresentation(
+  @SubscribeMessage('join-presentation')
+  handleJoinPresentation(
     @MessageBody() data: {
       clientId: string,
       presentation: string
@@ -69,18 +69,6 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     const clientSocket = this.userSocketMap.get(data.clientId);
     clientSocket.join(data.presentation);
-
-    this.server.to(data.presentation).emit('create-presentation', `Room for presentation ${data.presentation} created successfully`);
-  }
-
-  @SubscribeMessage('join-presentation')
-  handleJoinPresentation(
-    @MessageBody() data: {
-      clientId: string,
-      room: string
-    }
-  ) {
-    const clientSocket = this.userSocketMap.get(data.clientId);
-    clientSocket.join(data.room);
+        this.server.to(data.presentation).emit('join-presentation', `User ${data.clientId} joined room for presentation ${data.presentation} successfully`);
   }
 }
