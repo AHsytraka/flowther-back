@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
 import { PresentationService } from './presentation.service';
 import { Presentation } from './entity/presentation.entity';
 
@@ -21,5 +21,10 @@ export class PresentationController {
     @Get('find/:id')
     findById(@Param('id') id: string): Promise<Presentation> {
         return this.presentationService.findById(id);
+    }
+
+    @Put('update/:id')
+    updateById(@Param('id') id: string, @Body() presentation: Presentation): Promise<Presentation> {
+        return this.presentationService.updateById(id, presentation);
     }
 }

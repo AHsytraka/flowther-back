@@ -20,4 +20,8 @@ export class PresentationService {
     async findById(id: string): Promise<Presentation> {
         return await this.presentationModel.findById(id);
     }
+
+    async updateById(id: string, updatedPresentation: Presentation): Promise<Presentation> {
+        return await this.presentationModel.findByIdAndUpdate(id, updatedPresentation);
+    }
 }

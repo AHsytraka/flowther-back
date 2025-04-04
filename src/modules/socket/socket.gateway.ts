@@ -45,7 +45,6 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     client.join(data.sectionName);
     this.logger.log(`Client ${client.id} joined section room: ${data.sectionName}`);
     
-    // Si un nom de section est déjà défini pour cette room, l'envoyer immédiatement
     const currentSectionName = this.roomSectionNames.get(data.sectionName);
     if (currentSectionName) {
       client.emit('section-name-updated', { sectionName: currentSectionName });
@@ -59,10 +58,8 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
     @MessageBody() data: { roomId: string, sectionName: string }
   ) {
-    // Enregistrer le nom de section pour cette room
     this.roomSectionNames.set(data.roomId, data.sectionName);
     
-    // Diffuser le changement à tous les clients de la room
     this.server.to(data.roomId).emit('section-name-updated', {
       sectionName: data.sectionName
     });
